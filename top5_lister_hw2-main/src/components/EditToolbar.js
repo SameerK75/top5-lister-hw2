@@ -1,7 +1,12 @@
 import React from "react";
 
 export default class EditToolbar extends React.Component {
+
+    //handleCloseList() {
+    //    this.props.closeCallback();
+    //}
     render() {
+        const {closeCallback} = this.props;
         return (
             <div id="edit-toolbar">
                 <div 
@@ -16,7 +21,9 @@ export default class EditToolbar extends React.Component {
                 </div>
                 <div
                     id='close-button'
-                    className="top5-button">
+                    className="top5-button"
+                    onClick = {closeCallback}>
+                    
                         &#x24E7;
                 </div>
             </div>

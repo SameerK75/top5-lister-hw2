@@ -43,6 +43,10 @@ export default class ListItem extends React.Component {
 
     }
 
+    handleDragOver = (event) => {
+        event.preventDefault();
+    }
+
     render() {
         const {item, index} = this.props;
         if(this.state.editActive) {
@@ -63,6 +67,7 @@ export default class ListItem extends React.Component {
                 <div
                 id = {"item-" + index}
                 draggable = "true"
+                onDragOver = {this.handleDragOver}
                 onClick = {this.handleClick}
                 className = "top5-item"
                 >
