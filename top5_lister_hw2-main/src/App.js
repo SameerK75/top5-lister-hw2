@@ -6,10 +6,10 @@ import DBManager from './db/DBManager';
 
 // THESE ARE OUR REACT COMPONENTS
 import DeleteModal from './components/DeleteModal';
-import Banner from './components/Banner.js'
-import Sidebar from './components/Sidebar.js'
+import Banner from './components/Banner.js';
+import Sidebar from './components/Sidebar.js';
 import Workspace from './components/Workspace.js';
-import Statusbar from './components/Statusbar.js'
+import Statusbar from './components/Statusbar.js';
 
 class App extends React.Component {
     constructor(props) {
@@ -142,6 +142,25 @@ class App extends React.Component {
         let modal = document.getElementById("delete-modal");
         modal.classList.remove("is-visible");
     }
+
+    renameItem = (index, newName) => {
+        let editList = this.state.currentList
+        if(editList !== null) {
+            editList.items[index] = newName;
+        }
+        let key = editList.key;
+        this.setState(prevState => ({
+            currentList: editList,
+            sessionData: prevState.sessionData
+        }), () => {
+            let list = this.db.queryGetList(key);
+            list.items[index] = newName
+            this.db.mutationUpdateList(list);
+            this.db.mutationUpdateSessionData(this.state.sessionData);
+        });
+
+
+    }
     render() {
         return (
             <div id="app-root">
@@ -158,7 +177,8 @@ class App extends React.Component {
                     renameListCallback={this.renameList}
                 />
                 <Workspace
-                    currentList={this.state.currentList} />
+                    currentList={this.state.currentList}
+                    renameItemCallback = {this.renameItem} />
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteModal

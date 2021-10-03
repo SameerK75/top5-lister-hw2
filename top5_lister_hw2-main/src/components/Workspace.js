@@ -1,8 +1,10 @@
 import React from "react";
+import ListItem from './ListItem'
 
 export default class Workspace extends React.Component {
     render() {
-        const {currentList} = this.props;
+        const {currentList,
+        renameItemCallback} = this.props;
         let items = [];
         if (currentList !== null) {
             items = currentList.items;
@@ -18,11 +20,16 @@ export default class Workspace extends React.Component {
                         <div className="item-number">5.</div>
                     </div>
                     <div id = "edit-items">
-                        <div id='item-1' class="top5-item"> {items[0]}</div>
-                        <div id='item-2' class="top5-item"> {items[1]}</div>
-                        <div id='item-3' class="top5-item"> {items[2]}</div>
-                        <div id='item-4' class="top5-item"> {items[3]}</div>
-                        <div id='item-5' class="top5-item"> {items[4]}</div>
+                       {
+                           items.map((item, i) => (
+                               <ListItem
+                               key = {"ListItem-" + i}
+                               item = {item} 
+                               index={i}
+                               renameItemCallback = {renameItemCallback}
+                               />
+                           ))
+                       }
                     </div>
                 </div>
             </div>
