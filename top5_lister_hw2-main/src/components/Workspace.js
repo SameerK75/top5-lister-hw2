@@ -25,7 +25,7 @@ export default class Workspace extends React.Component {
                        {
                            items.map((item, i) => (
                                <ListItem
-                               key = {"ListItem-" + i}
+                               key = {currentList.name + item + i}
                                item = {item} 
                                index={i}
                                renameItemCallback = {renameItemCallback}

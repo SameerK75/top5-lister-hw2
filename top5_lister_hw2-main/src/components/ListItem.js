@@ -9,6 +9,7 @@ export default class ListItem extends React.Component {
         this.state = {
             itemIndex: this.props.index,
             itemText: this.props.item,
+            //oldText: this.props.item,
             editActive: false,
         }
     }
@@ -16,7 +17,7 @@ export default class ListItem extends React.Component {
     handleClick = (event) => {
         if (event.detail === 2) {
             this.handleToggleEdit(event);
-            this.setState({oldText: this.state.itemText})
+            this.setState({oldText: this.state.itemText,})
         }
         
     }
@@ -43,14 +44,24 @@ export default class ListItem extends React.Component {
         console.log("ListItem handleBlur:" + text);
         let oldText = this.state.oldText;
         this.props.addChangeItemTransactionCallback(index, text, oldText)
-
-        this.props.renameItemCallback(index, text);
         this.handleToggleEdit();
 
     }
 
     handleDragOver = (event) => {
         event.preventDefault();
+        //let listItem = this.itemRef.current;
+        //listItem.classList.add("top5-item-dragged-to");
+    }
+
+    handleDragEnter = (event) => {
+        let listItem = this.itemRef.current;
+        listItem.classList.add("top5-item-dragged-to");
+    }
+
+    handleDragLeave = (event) => {
+        let listItem = this.itemRef.current;
+        listItem.classList.remove("top5-item-dragged-to");
     }
 
     handleDragStart = (event) => {
@@ -59,6 +70,8 @@ export default class ListItem extends React.Component {
 
     handleOnDrop = (event) => {
         event.preventDefault();
+        let listItem = this.itemRef.current;
+        listItem.classList.remove("top5-item-dragged-to");
         let droppedID = event.dataTransfer.getData("text");
         let droppedOnID = event.target.id;
         let index1 = droppedID.charAt(5);
@@ -90,6 +103,8 @@ export default class ListItem extends React.Component {
                 onDragOver = {this.handleDragOver}
                 onDragStart = {this.handleDragStart}
                 onDrop = {this.handleOnDrop}
+                onDragEnter = {this.handleDragEnter}
+                onDragLeave = {this.handleDragLeave}
                 onClick = {this.handleClick}
                 className = "top5-item"
                 >

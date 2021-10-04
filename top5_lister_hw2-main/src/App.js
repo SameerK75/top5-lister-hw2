@@ -119,6 +119,7 @@ class App extends React.Component {
             sessionData: prevState.sessionData
         }), () => {
             // ANY AFTER EFFECTS?
+            //this.db.mutationUpdateSessionData(this.state.sessionData);
             this.tps.clearAllTransactions();
         });
     }
@@ -163,7 +164,7 @@ class App extends React.Component {
             sessionData: prevState.sessionData
         }), () => {
             let list = this.db.queryGetList(key);
-            //list.items[index] = newName
+            list.items[index] = newName
             this.db.mutationUpdateList(list);
             this.db.mutationUpdateSessionData(this.state.sessionData);
         });
