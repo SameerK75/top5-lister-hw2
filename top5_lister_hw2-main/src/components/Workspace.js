@@ -5,7 +5,8 @@ export default class Workspace extends React.Component {
     render() {
         const {currentList,
         renameItemCallback,
-        addChangeItemTransactionCallback} = this.props;
+        addChangeItemTransactionCallback,
+        addMoveItemTransactionCallback} = this.props;
         let items = [];
         if (currentList !== null) {
             items = currentList.items;
@@ -29,6 +30,7 @@ export default class Workspace extends React.Component {
                                index={i}
                                renameItemCallback = {renameItemCallback}
                                addChangeItemTransactionCallback = {addChangeItemTransactionCallback}
+                               addMoveItemTransactionCallback = {addMoveItemTransactionCallback}
                                />
                            ))
                        }

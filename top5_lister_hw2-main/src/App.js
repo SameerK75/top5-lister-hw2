@@ -12,6 +12,7 @@ import Banner from './components/Banner.js';
 import Sidebar from './components/Sidebar.js';
 import Workspace from './components/Workspace.js';
 import Statusbar from './components/Statusbar.js';
+import MoveItem_Transaction from './transactions/MoveItem_Transaction';
 
 class App extends React.Component {
     constructor(props) {
@@ -118,6 +119,7 @@ class App extends React.Component {
             sessionData: prevState.sessionData
         }), () => {
             // ANY AFTER EFFECTS?
+            this.tps.clearAllTransactions();
         });
     }
     // THIS FUNCTION BEGINS THE PROCESS OF CLOSING THE CURRENT LIST
@@ -128,6 +130,7 @@ class App extends React.Component {
             sessionData: this.state.sessionData
         }), () => {
             // ANY AFTER EFFECTS?
+            this.tps.clearAllTransactions();
         });
     }
     deleteList = () => {
@@ -160,7 +163,7 @@ class App extends React.Component {
             sessionData: prevState.sessionData
         }), () => {
             let list = this.db.queryGetList(key);
-            list.items[index] = newName
+            //list.items[index] = newName
             this.db.mutationUpdateList(list);
             this.db.mutationUpdateSessionData(this.state.sessionData);
         });
@@ -171,6 +174,22 @@ class App extends React.Component {
         let transaction = new ChangeItem_Transaction(this, index, text, oldText);
         this.tps.addTransaction(transaction);
     };
+
+    moveItem = (oldIndex, newIndex) => {
+        let items = this.state.currentList.items;
+        items.splice(newIndex, 0, items.splice(oldIndex, 1)[0]);
+        this.setState(prevState => ({
+            currentList: this.state.currentList,
+            sessionData: prevState.sessionData
+        }))
+        this.db.mutationUpdateList(this.state.currentList);
+        this.db.mutationUpdateSessionData(this.state.sessionData);
+    }
+
+    addMoveItemTransaction = (oldIndex, newIndex) => {
+        let transaction = new MoveItem_Transaction(this, oldIndex, newIndex);
+        this.tps.addTransaction(transaction);
+    }
 
     undo = () => {
         if (this.tps.hasTransactionToUndo()) {
@@ -205,7 +224,8 @@ class App extends React.Component {
                 <Workspace
                     currentList={this.state.currentList}
                     renameItemCallback = {this.renameItem}
-                    addChangeItemTransactionCallback = {this.addChangeItemTransaction} />
+                    addChangeItemTransactionCallback = {this.addChangeItemTransaction}
+                    addMoveItemTransactionCallback = {this.addMoveItemTransaction} />
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteModal

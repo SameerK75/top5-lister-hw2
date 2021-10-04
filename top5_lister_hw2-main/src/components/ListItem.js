@@ -3,6 +3,8 @@ import React from "react";
 export default class ListItem extends React.Component {
     constructor(props) {
         super(props);
+        
+        this.itemRef = React.createRef();
 
         this.state = {
             itemIndex: this.props.index,
@@ -57,10 +59,11 @@ export default class ListItem extends React.Component {
 
     handleOnDrop = (event) => {
         event.preventDefault();
-        //let droppedID = event.dataTransfer.getData("text");
-        //let droppedOnID = event.target.id;
-        //let index1 = droppedID.charAt(5);
-        //let index2 = droppedOnID.charAt(5);
+        let droppedID = event.dataTransfer.getData("text");
+        let droppedOnID = event.target.id;
+        let index1 = droppedID.charAt(5);
+        let index2 = droppedOnID.charAt(5);
+        this.props.addMoveItemTransactionCallback(index1, index2);
     }
 
     render() {
@@ -82,6 +85,7 @@ export default class ListItem extends React.Component {
             return(
                 <div
                 id = {"item-" + index}
+                ref = {this.itemRef} 
                 draggable = "true"
                 onDragOver = {this.handleDragOver}
                 onDragStart = {this.handleDragStart}
