@@ -4,7 +4,8 @@ import ListItem from './ListItem'
 export default class Workspace extends React.Component {
     render() {
         const {currentList,
-        renameItemCallback} = this.props;
+        renameItemCallback,
+        addChangeItemTransactionCallback} = this.props;
         let items = [];
         if (currentList !== null) {
             items = currentList.items;
@@ -27,6 +28,7 @@ export default class Workspace extends React.Component {
                                item = {item} 
                                index={i}
                                renameItemCallback = {renameItemCallback}
+                               addChangeItemTransactionCallback = {addChangeItemTransactionCallback}
                                />
                            ))
                        }

@@ -3,6 +3,8 @@ import './App.css';
 
 // IMPORT DATA MANAGEMENT AND TRANSACTION STUFF
 import DBManager from './db/DBManager';
+import jsTPS from './transactions/jsTPS';
+import ChangeItem_Transaction from "./transactions/ChangeItem_Transaction";
 
 // THESE ARE OUR REACT COMPONENTS
 import DeleteModal from './components/DeleteModal';
@@ -14,6 +16,9 @@ import Statusbar from './components/Statusbar.js';
 class App extends React.Component {
     constructor(props) {
         super(props);
+
+        // THIS WILL MANAGE TRANSACTIONS
+        this.tps = new jsTPS();
 
         // THIS WILL TALK TO LOCAL STORAGE
         this.db = new DBManager();
@@ -160,14 +165,34 @@ class App extends React.Component {
             this.db.mutationUpdateSessionData(this.state.sessionData);
         });
 
-
     }
+
+    addChangeItemTransaction = (index, text, oldText) => {
+        let transaction = new ChangeItem_Transaction(this, index, text, oldText);
+        this.tps.addTransaction(transaction);
+    };
+
+    undo = () => {
+        if (this.tps.hasTransactionToUndo()) {
+            this.tps.undoTransaction();
+        }
+    }
+
+    redo = () => {
+        if (this.tps.hasTransactionToRedo()) {
+            this.tps.doTransaction();
+        }
+    
+    }
+
     render() {
         return (
             <div id="app-root">
                 <Banner 
                     title='Top 5 Lister'
-                    closeCallback={this.closeCurrentList} />
+                    closeCallback={this.closeCurrentList}
+                    undoCallback = {this.undo}
+                    redoCallback = {this.redo} />
                 <Sidebar
                     heading='Your Lists'
                     currentList={this.state.currentList}
@@ -179,7 +204,8 @@ class App extends React.Component {
                 />
                 <Workspace
                     currentList={this.state.currentList}
-                    renameItemCallback = {this.renameItem} />
+                    renameItemCallback = {this.renameItem}
+                    addChangeItemTransactionCallback = {this.addChangeItemTransaction} />
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteModal

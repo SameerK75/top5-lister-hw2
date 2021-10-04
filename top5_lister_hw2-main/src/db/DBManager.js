@@ -37,6 +37,7 @@ export default class DBManager {
     }
 
     mutationDeleteList = (list) => {
-        
+        let listString = JSON.stringify(list);
+        localStorage.removeItem("top5-list-" + list.key, listString);
     }
 }

@@ -14,13 +14,14 @@ export default class ListItem extends React.Component {
     handleClick = (event) => {
         if (event.detail === 2) {
             this.handleToggleEdit(event);
+            this.setState({oldText: this.state.itemText})
         }
         
     }
 
     handleToggleEdit = (event) => {
         this.setState({
-            editActive: !this.state.editActive
+            editActive: !this.state.editActive,
         });
     }
 
@@ -38,6 +39,9 @@ export default class ListItem extends React.Component {
         let index = this.state.itemIndex;
         let text = this.state.itemText;
         console.log("ListItem handleBlur:" + text);
+        let oldText = this.state.oldText;
+        this.props.addChangeItemTransactionCallback(index, text, oldText)
+
         this.props.renameItemCallback(index, text);
         this.handleToggleEdit();
 
@@ -45,6 +49,18 @@ export default class ListItem extends React.Component {
 
     handleDragOver = (event) => {
         event.preventDefault();
+    }
+
+    handleDragStart = (event) => {
+        event.dataTransfer.setData("text", event.target.id);
+    }
+
+    handleOnDrop = (event) => {
+        event.preventDefault();
+        //let droppedID = event.dataTransfer.getData("text");
+        //let droppedOnID = event.target.id;
+        //let index1 = droppedID.charAt(5);
+        //let index2 = droppedOnID.charAt(5);
     }
 
     render() {
@@ -68,6 +84,8 @@ export default class ListItem extends React.Component {
                 id = {"item-" + index}
                 draggable = "true"
                 onDragOver = {this.handleDragOver}
+                onDragStart = {this.handleDragStart}
+                onDrop = {this.handleOnDrop}
                 onClick = {this.handleClick}
                 className = "top5-item"
                 >
