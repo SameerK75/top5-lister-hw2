@@ -49,9 +49,7 @@ export default class ListItem extends React.Component {
     }
 
     handleDragOver = (event) => {
-        event.preventDefault();
-        //let listItem = this.itemRef.current;
-        //listItem.classList.add("top5-item-dragged-to");
+        event.preventDefault();;
     }
 
     handleDragEnter = (event) => {

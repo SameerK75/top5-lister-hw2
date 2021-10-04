@@ -134,12 +134,47 @@ class App extends React.Component {
             this.tps.clearAllTransactions();
         });
     }
-    deleteList = () => {
+    deleteList = (keyNamePair) => {
         // SOMEHOW YOU ARE GOING TO HAVE TO FIGURE OUT
         // WHICH LIST IT IS THAT THE USER WANTS TO
         // DELETE AND MAKE THAT CONNECTION SO THAT THE
         // NAME PROPERLY DISPLAYS INSIDE THE MODAL
         this.showDeleteListModal();
+        this.setState(prevState => ({
+            currentList: prevState.currentList,
+            listKeyPairMarkedForDeletion: keyNamePair,
+            sessionData: this.state.sessionData
+        }))
+    }
+
+    confirmDelete = () => {
+        let keyToDelete = this.state.listKeyPairMarkedForDeletion.key;
+        let listToDelete = this.db.queryGetList(keyToDelete);
+        let newCurrentList = null;
+        if(this.state.currentList !== null ) {
+            if(keyToDelete !== this.state.currentList.key) {
+                newCurrentList = this.state.currentList;
+            }
+        }
+        let currentPairs = [...this.state.sessionData.keyNamePairs];
+        let deleteIndex = currentPairs.indexOf(this.state.listKeyPairMarkedForDeletion);
+        currentPairs.splice(deleteIndex, 1);
+
+        this.setState(prevState => ({
+            currentList: newCurrentList,
+            sessionData: {
+                nextKey: prevState.sessionData.nextKey,
+                counter: prevState.sessionData.counter,
+                keyNamePairs: currentPairs
+            }
+        }), () => {
+            this.db.mutationDeleteList(listToDelete);
+            this.db.mutationUpdateSessionData(this.state.sessionData);
+        });
+
+        this.hideDeleteListModal();
+
+
     }
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
     // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
@@ -226,11 +261,13 @@ class App extends React.Component {
                     currentList={this.state.currentList}
                     renameItemCallback = {this.renameItem}
                     addChangeItemTransactionCallback = {this.addChangeItemTransaction}
-                    addMoveItemTransactionCallback = {this.addMoveItemTransaction} />
+                    addMoveItemTransactionCallback = {this.addMoveItemTransaction}/>
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteModal
                     hideDeleteListModalCallback={this.hideDeleteListModal}
+                    listKeyPair = {this.state.listKeyPairMarkedForDeletion}
+                    confirmDeleteCallback = {this.confirmDelete}
                 />
             </div>
         );
