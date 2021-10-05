@@ -11,9 +11,11 @@ export default class ChangeItem_Transaction extends jsTPS_Transaction {
 
     doTransaction() {
         this.app.renameItem(this.index, this.newName);
+        this.app.undoRedoCheckForDo();
     }
 
     undoTransaction() {
         this.app.renameItem(this.index, this.oldName);
+        this.app.undoRedoCheckForUndo();
     }
 }

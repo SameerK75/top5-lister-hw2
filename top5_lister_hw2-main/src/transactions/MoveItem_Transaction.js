@@ -10,9 +10,11 @@ export default class MoveItem_Transaction extends jsTPS_Transaction {
 
     doTransaction() {
         this.app.moveItem(this.oldIndex, this.newIndex);
+        this.app.undoRedoCheckForDo();
     }
 
     undoTransaction() {
         this.app.moveItem(this.newIndex, this.oldIndex);
+        this.app.undoRedoCheckForUndo();
     }
 }

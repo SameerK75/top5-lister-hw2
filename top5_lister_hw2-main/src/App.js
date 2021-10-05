@@ -46,7 +46,8 @@ class App extends React.Component {
     }
     // THIS FUNCTION BEGINS THE PROCESS OF CREATING A NEW LIST
     createNewList = () => {
-        // FIRST FIGURE OUT WHAT THE NEW LIST'S KEY AND NAME WILL BE
+        if(this.state.currentList === null) {
+            // FIRST FIGURE OUT WHAT THE NEW LIST'S KEY AND NAME WILL BE
         let newKey = this.state.sessionData.nextKey;
         let newName = "Untitled" + newKey;
 
@@ -72,6 +73,9 @@ class App extends React.Component {
         this.setState(prevState => ({
             currentList: newList,
             addButton: "top5-button-disabled",
+            closeButton: "top5-button",
+            undoButton: "top5-button-disabled",
+            redoButton: "top5-button-disabled",
             sessionData: {
                 nextKey: prevState.sessionData.nextKey + 1,
                 counter: prevState.sessionData.counter + 1,
@@ -83,6 +87,8 @@ class App extends React.Component {
             this.db.mutationCreateList(newList);
             this.db.mutationUpdateSessionData(this.state.sessionData)
         });
+        }
+        
     }
     renameList = (key, newName) => {
         let newKeyNamePairs = [...this.state.sessionData.keyNamePairs];
@@ -137,6 +143,7 @@ class App extends React.Component {
             if(currentKey != key) {
                 this.tps.clearAllTransactions();
             }
+            this.undoRedoCheck();
         });
     }
     // THIS FUNCTION BEGINS THE PROCESS OF CLOSING THE CURRENT LIST
@@ -171,9 +178,13 @@ class App extends React.Component {
         let keyToDelete = this.state.listKeyPairMarkedForDeletion.key;
         let listToDelete = this.db.queryGetList(keyToDelete);
         let newCurrentList = null;
+        let newAdd = "top5-button";
+        let newClose = "top5-button-disabled";
         if(this.state.currentList !== null ) {
             if(keyToDelete !== this.state.currentList.key) {
                 newCurrentList = this.state.currentList;
+                newAdd = "top5-button-disabled";
+                newClose = "top5-button";
             }
         }
         let currentPairs = [...this.state.sessionData.keyNamePairs];
@@ -182,6 +193,8 @@ class App extends React.Component {
 
         this.setState(prevState => ({
             currentList: newCurrentList,
+            addButton: newAdd,
+            closeButton: newClose,
             sessionData: {
                 nextKey: prevState.sessionData.nextKey,
                 counter: prevState.sessionData.counter,
@@ -190,6 +203,11 @@ class App extends React.Component {
         }), () => {
             this.db.mutationDeleteList(listToDelete);
             this.db.mutationUpdateSessionData(this.state.sessionData);
+            if(newCurrentList === null) {
+                this.tps.clearAllTransactions();
+            }
+            this.undoRedoCheck();
+
         });
 
         this.hideDeleteListModal();
@@ -269,6 +287,57 @@ class App extends React.Component {
             this.tps.doTransaction();
         }
     
+    }
+
+    undoRedoCheck = () => {
+        let newUndo = "top5-button-disabled";
+        if (this.tps.hasTransactionToUndo()) {
+            newUndo = "top5-button";
+        }
+        let newRedo = "top5-button-disabled";
+        if (this.tps.hasTransactionToRedo()) {
+            newRedo = "top5-button";
+        }
+        this.setState(prevState => ({
+            currentList: prevState.currentList,
+            sessionData: prevState.sessionData,
+            undoButton: newUndo,
+            redoButton: newRedo
+        }))
+    }  
+
+    undoRedoCheckForDo = () => {
+        let newUndo = "top5-button-disabled";
+        if ((this.tps.mostRecentTransaction + 1) >= 0) {
+            newUndo = "top5-button";
+        }
+        let newRedo = "top5-button-disabled";
+        if ((this.tps.mostRecentTransaction+2) < this.tps.numTransactions) {
+            newRedo = "top5-button";
+        }
+        this.setState(prevState => ({
+            currentList: prevState.currentList,
+            sessionData: prevState.sessionData,
+            undoButton: newUndo,
+            redoButton: newRedo
+        }))
+    }
+
+    undoRedoCheckForUndo = () => {
+        let newUndo = "top5-button-disabled";
+        if ((this.tps.mostRecentTransaction - 1) >= 0) {
+            newUndo = "top5-button";
+        }
+        let newRedo = "top5-button-disabled";
+        if ((this.tps.mostRecentTransaction) < this.tps.numTransactions) {
+            newRedo = "top5-button";
+        }
+        this.setState(prevState => ({
+            currentList: prevState.currentList,
+            sessionData: prevState.sessionData,
+            undoButton: newUndo,
+            redoButton: newRedo
+        }))
     }
 
     render() {
