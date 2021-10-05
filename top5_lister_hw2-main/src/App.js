@@ -20,8 +20,9 @@ class App extends React.Component {
 
         // THIS WILL MANAGE TRANSACTIONS
         this.tps = new jsTPS();
+        window.addEventListener('keydown', this.handleUndoRedo);
 
-        // THIS WILL TALK TO LOCAL STORAGE
+        // THIS WILL TALK TO LOCAL STORAGE)
         this.db = new DBManager();
 
         // GET THE SESSION DATA FROM OUR DATA MANAGER
@@ -30,7 +31,11 @@ class App extends React.Component {
         // SETUP THE INITIAL STATE
         this.state = {
             currentList : null,
-            sessionData : loadedSessionData
+            sessionData : loadedSessionData,
+            addButton   : "top5-button",
+            undoButton  : "top5-button-disabled",
+            redoButton  : "top5-button-disabled",
+            closeButton : "top5-button-disabled"
         }
     }
     sortKeyNamePairsByName = (keyNamePairs) => {
@@ -66,6 +71,7 @@ class App extends React.Component {
         // SHOULD BE DONE VIA ITS CALLBACK
         this.setState(prevState => ({
             currentList: newList,
+            addButton: "top5-button-disabled",
             sessionData: {
                 nextKey: prevState.sessionData.nextKey + 1,
                 counter: prevState.sessionData.counter + 1,
@@ -113,14 +119,24 @@ class App extends React.Component {
     }
     // THIS FUNCTION BEGINS THE PROCESS OF LOADING A LIST FOR EDITING
     loadList = (key) => {
+        let currentKey = -1
+        if(this.state.currentList !== null) {
+            currentKey = this.state.currentList.key;
+            console.log(currentKey);
+            console.log(key);
+        }
         let newCurrentList = this.db.queryGetList(key);
         this.setState(prevState => ({
             currentList: newCurrentList,
-            sessionData: prevState.sessionData
+            sessionData: prevState.sessionData,
+            addButton: "top5-button-disabled",
+            closeButton: "top5-button"
         }), () => {
             // ANY AFTER EFFECTS?
             //this.db.mutationUpdateSessionData(this.state.sessionData);
-            this.tps.clearAllTransactions();
+            if(currentKey != key) {
+                this.tps.clearAllTransactions();
+            }
         });
     }
     // THIS FUNCTION BEGINS THE PROCESS OF CLOSING THE CURRENT LIST
@@ -128,7 +144,11 @@ class App extends React.Component {
         this.setState(prevState => ({
             currentList: null,
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
-            sessionData: this.state.sessionData
+            sessionData: this.state.sessionData,
+            addButton: "top5-button",
+            undoButton: "top5-button-disabled",
+            redoButton: "top5-button-disabled",
+            closeButton: "top5-button-disabled",
         }), () => {
             // ANY AFTER EFFECTS?
             this.tps.clearAllTransactions();
@@ -186,6 +206,17 @@ class App extends React.Component {
     hideDeleteListModal() {
         let modal = document.getElementById("delete-modal");
         modal.classList.remove("is-visible");
+    }
+
+    handleUndoRedo = (event) => {
+        if(event.ctrlKey) {
+            if(event.key === 'z'){
+                this.undo();
+            }
+            else if(event.key === 'y'){
+                this.redo();
+            }
+        }
     }
 
     renameItem = (index, newName) => {
@@ -247,7 +278,10 @@ class App extends React.Component {
                     title='Top 5 Lister'
                     closeCallback={this.closeCurrentList}
                     undoCallback = {this.undo}
-                    redoCallback = {this.redo} />
+                    redoCallback = {this.redo}
+                    undoButtonClass = {this.state.undoButton}
+                    redoButtonClass = {this.state.redoButton}
+                    closeButtonClass = {this.state.closeButton} />
                 <Sidebar
                     heading='Your Lists'
                     currentList={this.state.currentList}
@@ -256,6 +290,7 @@ class App extends React.Component {
                     deleteListCallback={this.deleteList}
                     loadListCallback={this.loadList}
                     renameListCallback={this.renameList}
+                    addButtonClass = {this.state.addButton}
                 />
                 <Workspace
                     currentList={this.state.currentList}
